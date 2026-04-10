@@ -21,6 +21,50 @@ const swaggerDefinition = {
         bearerFormat: 'JWT',
       },
     },
+    schemas: {
+      Business: {
+        type: 'object',
+        required: ['businessName'],
+        properties: {
+          businessName: {
+            type: 'string',
+            example: 'My Awesome Business'
+          },
+          product: {
+            type: 'string',
+            example: 'Software as a Service'
+          },
+          customer: {
+            type: 'string',
+            example: 'Small to medium businesses'
+          },
+          goToMarket: {
+            type: 'array',
+            items: {
+              type: 'string',
+              enum: ['online_store', 'direct_sales', 'retail', 'subscription', 'freemium', 'marketplace', 'consulting', 'partnerships']
+            },
+            example: ['online_store', 'subscription']
+          },
+          culture: {
+            type: 'string',
+            example: 'Innovative and customer-focused'
+          },
+          userid: {
+            type: 'string',
+            example: 'user123'
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time'
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time'
+          }
+        }
+      }
+    }
   },
   tags: [
     {
@@ -30,6 +74,10 @@ const swaggerDefinition = {
     {
       name: "Workloads",
       description: "Endpoints for managing workloads and tasks within workloads",
+    },
+    {
+      name: "Portfolio",
+      description: "Endpoints for managing business portfolios",
     },
   ],
 };

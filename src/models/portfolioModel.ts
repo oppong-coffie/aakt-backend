@@ -1,37 +1,108 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
 
-// Base interface for all portfolio items
-export interface IPortfolioItem extends Document {
-    userId: Types.ObjectId;
-    itemType: 'department' | 'operation' | 'project' | 'process' | 'block';
-    parentId?: Types.ObjectId; // null for departments, otherwise points to the parent item
-    category: 'saas' | 'ecommerce';
-    name: string;
-    description?: string;
-    order: number; // For drag and drop reordering
-    createdAt: Date;
-    updatedAt: Date;
+export interface IBusiness extends Document {
+  businessName: string;
+  product?: string;
+  customer?: string;
+  goToMarket?: ('online_store' | 'direct_sales' | 'retail' | 'subscription' | 'freemium' | 'marketplace' | 'consulting' | 'partnerships')[];
+  culture?: string;
+  businessImage?: string;
+  userid: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const portfolioItemSchema = new Schema<IPortfolioItem>(
-    {
-        userId: { type: Schema.Types.ObjectId, ref: 'users', required: true },
-        itemType: {
-            type: String,
-            enum: ['department', 'operation', 'project', 'process', 'block'],
-            required: true
-        },
-        parentId: { type: Schema.Types.ObjectId, ref: 'portfolio_items', default: null },
-        category: { type: String, enum: ['saas', 'ecommerce'], required: true },
-        name: { type: String, required: true, trim: true },
-        description: { type: String, trim: true },
-        order: { type: Number, default: 0 },
-    },
-    {
-        timestamps: true,
-    }
-);
+const businessSchema = new Schema<IBusiness>({
+  businessName: { type: String, required: true },
+  product: { type: String },
+  customer: { type: String },
+  goToMarket: {
+    type: [String],
+    enum: ['online_store', 'direct_sales', 'retail', 'subscription', 'freemium', 'marketplace', 'consulting', 'partnerships'],
+    default: []
+  },
+  culture: { type: String },
+  businessImage: { type: String },
+  userid: { type: String, required: true },
+}, {
+  timestamps: true,
+});
 
-portfolioItemSchema.index({ userId: 1, category: 1, itemType: 1, parentId: 1 });
+export const Business = model<IBusiness>('businesses', businessSchema);
 
-export const PortfolioItem = model<IPortfolioItem>('portfolio_items', portfolioItemSchema);
+export interface IProject extends Document {
+  businessId: string;
+  projectName: string;
+  projectDescription?: string;
+  userid: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const projectSchema = new Schema<IProject>({
+  businessId: { type: String, required: true },
+  projectName: { type: String, required: true },
+  projectDescription: { type: String },
+  userid: { type: String, required: true },
+}, {
+  timestamps: true,
+});
+
+export const Project = model<IProject>('projects', projectSchema);
+
+export interface ITask {
+  _id?: string;
+  taskName: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+const taskSchema = new Schema<ITask>({
+  taskName: { type: String, required: true },
+}, {
+  timestamps: true,
+});
+
+export interface IPhase extends Document {
+  projectId: string;
+  phaseName: string;
+  phaseDescription?: string;
+  userid: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const phaseSchema = new Schema<IPhase>({
+  projectId: { type: String, required: true },
+  phaseName: { type: String, required: true },
+  phaseDescription: { type: String },
+  userid: { type: String, required: true },
+}, {
+  timestamps: true,
+});
+
+export const Phase = model<IPhase>('phases', phaseSchema);
+
+export interface IProcess extends Document {
+  businessId: string;
+  projectId: string;
+  phaseId: string;
+  processName: string;
+  tasks: ITask[];
+  userid: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const processSchema = new Schema<IProcess>({
+  businessId: { type: String, required: true },
+  projectId: { type: String, required: true },
+  phaseId: { type: String, required: true },
+  processName: { type: String, required: true },
+  tasks: { type: [taskSchema], default: [] },
+  userid: { type: String, required: true },
+}, {
+  timestamps: true,
+});
+
+export const ProcessModel = model<IProcess>('processes', processSchema);

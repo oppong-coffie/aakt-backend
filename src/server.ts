@@ -5,7 +5,8 @@ import morgan from "morgan";
 import authRouter from "./routes/authRoutes";
 import onboardingRouter from "./routes/onboardingRoute";
 import bizInfraRouter from "./routes/bizInfraRoutes";
-import portfolioRouter from "./routes/portfolioRoutes";
+import portfolioRouter from "./routes/portfolioRoutes2";
+import portfolioBusinessRouter from "./routes/portfolioRoute";
 import workloadRouter from "./routes/workloadRoutes";
 import homeRouter from "./routes/homeRoute";
 import swaggerUi from "swagger-ui-express";
@@ -56,6 +57,8 @@ initializeGoogleOAuth();
 app.use("/auth", authRouter);
 app.use("/onboarding", onboardingRouter);
 app.use("/bizinfra", bizInfraRouter);
+// Business-specific portfolio routes must be registered before generic legacy routes.
+app.use("/portfolio", portfolioBusinessRouter);
 app.use("/portfolio", portfolioRouter);
 app.use("/workloads", workloadRouter);
 app.use("/home", homeRouter);

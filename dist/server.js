@@ -10,7 +10,8 @@ const morgan_1 = __importDefault(require("morgan"));
 const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
 const onboardingRoute_1 = __importDefault(require("./routes/onboardingRoute"));
 const bizInfraRoutes_1 = __importDefault(require("./routes/bizInfraRoutes"));
-const portfolioRoutes_1 = __importDefault(require("./routes/portfolioRoutes"));
+const portfolioRoutes2_1 = __importDefault(require("./routes/portfolioRoutes2"));
+const portfolioRoute_1 = __importDefault(require("./routes/portfolioRoute"));
 const workloadRoutes_1 = __importDefault(require("./routes/workloadRoutes"));
 const homeRoute_1 = __importDefault(require("./routes/homeRoute"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
@@ -50,7 +51,9 @@ initializeGoogleOAuth();
 app.use("/auth", authRoutes_1.default);
 app.use("/onboarding", onboardingRoute_1.default);
 app.use("/bizinfra", bizInfraRoutes_1.default);
-app.use("/portfolio", portfolioRoutes_1.default);
+// Business-specific portfolio routes must be registered before generic legacy routes.
+app.use("/portfolio", portfolioRoute_1.default);
+app.use("/portfolio", portfolioRoutes2_1.default);
 app.use("/workloads", workloadRoutes_1.default);
 app.use("/home", homeRoute_1.default);
 // Swagger documentation
