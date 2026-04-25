@@ -1,5 +1,5 @@
 import express from "express";
-import { createOrUpdateOnboarding, getOnboarding, sendOtpEmail, sendStage, sendSkills, sendStep, sendConfident, sendFeeling, verifyOtp } from "../controllers/onboardingController";
+import { createOrUpdateOnboarding, getOnboarding, sendStage, sendSkills, sendStep, sendConfident, sendFeeling } from "../controllers/onboardingController";
 import { authenticateToken } from "../middleware/authMiddleware";
 
 const router = express.Router();
@@ -79,60 +79,6 @@ router.post("/", createOrUpdateOnboarding as any);
 
 // GET route to retrieve the current onboarding state
 router.get("/", getOnboarding as any);
-
-/**
- * @swagger
- * /onboarding/send-otp:
- *   post:
- *     summary: Send OTP email
- *     description: Sends an OTP to the authenticated user's email address.
- *     tags: [Onboarding]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: OTP sent successfully
- *       400:
- *         description: Bad request
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Internal server error
- */
-router.post("/send-otp", sendOtpEmail as any);
-
-/**
- * @swagger
- * /onboarding/verify-otp:
- *   post:
- *     summary: Verify OTP code
- *     description: Verifies the OTP code sent securely by comparing to the database.
- *     tags: [Onboarding]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - otp
- *             properties:
- *               otp:
- *                 type: string
- *                 example: "123456"
- *     responses:
- *       200:
- *         description: OTP verified successfully
- *       400:
- *         description: Invalid OTP
- *       404:
- *         description: Onboarding data not found
- *       500:
- *         description: Internal server error
- */
-router.post("/verify-otp", verifyOtp as any);
 
 /**
  * @swagger

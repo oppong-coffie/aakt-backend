@@ -1,12 +1,7 @@
 import { Response } from "express";
 import { Onboarding } from "../models/onboardingModel";
+import { User } from "../models/userModels";
 import { AuthenticatedRequest } from "../middleware/authMiddleware";
-import { sendOtp } from "../utils/emailService";
-
-// Helper to generate a 4-digit OTP code
-const generateOtpCode = () => {
-    return Math.floor(1000 + Math.random() * 9000).toString();
-};
 
 // START:: Create or update onboarding
 const createOrUpdateOnboarding = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -21,15 +16,6 @@ const createOrUpdateOnboarding = async (req: AuthenticatedRequest, res: Response
         // Remove legacy 'completed' number from payload if the frontend sends it
         delete updateData.completed;
 
-        // Auto-generate and send OTP if email is available
-        const email = req.user?.email;
-        if (email) {
-            const otp = generateOtpCode();
-            const emailSent = await sendOtp(email, otp);
-            if (emailSent) {
-                updateData.otp = otp;
-            }
-        }
 
         const onboarding = await Onboarding.findOneAndUpdate(
             { userId },
@@ -58,43 +44,7 @@ const createOrUpdateOnboarding = async (req: AuthenticatedRequest, res: Response
 };
 // END:: Create or update onboarding
 
-// START:: Send otp email
-const sendOtpEmail = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
-    try {
-        const userId = req.user?.id;
-        if (!userId) {
-            res.status(401).json({ message: "Unauthorized" });
-            return;
-        }
 
-        const email = req.user?.email;
-        if (!email) {
-            res.status(400).json({ message: "Email not found in token" });
-            return;
-        }
-
-        const otp = generateOtpCode();        
-
-        const emailSent = await sendOtp(email, otp);
-
-        if (emailSent) {
-            // Save the OTP to the onboarding document for later verification
-            await Onboarding.findOneAndUpdate(
-                { userId },
-                { $set: { otp }, $unset: { opt: 1 } },
-                { returnDocument: 'after', upsert: true, runValidators: true }
-            );
-
-            res.status(200).json({ message: `OTP sent successfully to ${email}` });
-        } else {
-            res.status(500).json({ message: "Failed to send OTP email" });
-        }
-    } catch (error) {
-        console.error("Error sending OTP email:", error);
-        res.status(500).json({ message: "Internal server error", error });
-    }
-};
-// END:: Send otp email
 
 // START:: Send stage
 const sendStage = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -278,38 +228,5 @@ const getOnboarding = async (req: AuthenticatedRequest, res: Response): Promise<
 };
 // END:: Get onboarding
 
-// START:: Verify OTP
-const verifyOtp = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
-    try {
-        const userId = req.user?.id;
-        if (!userId) {
-            res.status(401).json({ message: "Unauthorized" });
-            return;
-        }
 
-        const { otp } = req.body;
-        if (!otp) {
-            res.status(400).json({ message: "OTP is required in the request body" });
-            return;
-        }
-
-        const onboarding = await Onboarding.findOne({ userId });
-        if (!onboarding) {
-            res.status(404).json({ message: "Onboarding data not found" });
-            return;
-        }
-
-        // Check if the OTP matches (handle loose equality in case of string/number casting)
-        if (onboarding.get('otp') == otp || onboarding.get('opt') == otp) {
-            res.status(200).json({ message: "OTP verified successfully" });
-        } else {
-            res.status(400).json({ message: "Invalid OTP" });
-        }
-    } catch (error) {
-        console.error("Error verifying OTP:", error);
-        res.status(500).json({ message: "Internal server error", error });
-    }
-};
-// END:: Verify OTP
-
-export { createOrUpdateOnboarding, sendOtpEmail, getOnboarding, sendStage, sendSkills, sendStep, sendConfident, sendFeeling, verifyOtp };
+export { createOrUpdateOnboarding, getOnboarding, sendStage, sendSkills, sendStep, sendConfident, sendFeeling };

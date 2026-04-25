@@ -1,5 +1,6 @@
 import express from "express";
-import { createUser, deleteUser, getUserById, getUsers, updateUser, login, googleLogin, googleRegister } from "../controllers/userController";
+import { createUser, deleteUser, getUserById, getUsers, updateUser, login, googleLogin, googleRegister, verifyOtp, sendOtpEmail } from "../controllers/userController";
+import { authenticateToken } from "../middleware/authMiddleware";
 
 const authRouter = express.Router();
 
@@ -41,6 +42,39 @@ const authRouter = express.Router();
 authRouter.post("/register", (req, res) => {
     createUser(req, res);
 });
+
+/**
+ * @swagger
+ * /auth/verify-otp:
+ *   post:
+ *     summary: Verify OTP code
+ *     description: Verifies the OTP code sent securely by comparing to the database.
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - otp
+ *             properties:
+ *               otp:
+ *                 type: string
+ *                 example: "123456"
+ *     responses:
+ *       200:
+ *         description: OTP verified successfully
+ *       400:
+ *         description: Invalid OTP
+ *       404:
+ *         description: Onboarding data not found
+ *       500:
+ *         description: Internal server error
+ */
+authRouter.post("/verify-otp", authenticateToken as any, verifyOtp as any);
 
 /**
  * @swagger
@@ -204,5 +238,26 @@ authRouter.put("/updateuser/:id", (req, res) => {
 authRouter.delete("/deleteuser/:id", (req, res) => {
     deleteUser(req, res);
 });
+
+/**
+ * @swagger
+ * /auth/send-otp:
+ *   post:
+ *     summary: Send OTP email
+ *     description: Sends an OTP to the authenticated user's email address.
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: OTP sent successfully
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+authRouter.post("/send-otp", authenticateToken as any, sendOtpEmail as any);
 
 export default authRouter;
