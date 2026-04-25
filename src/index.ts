@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import app from "./server";
 import mongoose from "mongoose";
 import { verifyEmailConnection } from "./utils/emailService";

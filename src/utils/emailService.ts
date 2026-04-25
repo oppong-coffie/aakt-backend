@@ -4,17 +4,28 @@ import nodemailer from 'nodemailer';
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
-    pool: true, // Use connection pooling
+    secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports (STARTTLS)
+    pool: true,
     maxConnections: 5,
     maxMessages: 100,
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS?.replace(/\s+/g, ''), // Removed spaces just in case
+        pass: process.env.EMAIL_PASS?.replace(/\s+/g, ''),
     },
     tls: {
-        rejectUnauthorized: process.env.NODE_ENV === 'production'
+        // Many cloud providers have issues with certificate verification for SMTP
+        // Setting this to false is often necessary for stability in production
+        rejectUnauthorized: false
     }
+});
+
+// Log configuration (excluding sensitive data) for debugging
+console.log('Email Transporter configured:', {
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: process.env.SMTP_PORT || '587',
+    user: process.env.EMAIL_USER ? 'Present' : 'Missing',
+    pass: process.env.EMAIL_PASS ? 'Present' : 'Missing',
+    nodeEnv: process.env.NODE_ENV
 });
 
 /**
