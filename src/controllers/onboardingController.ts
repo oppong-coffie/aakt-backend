@@ -3,6 +3,11 @@ import { Onboarding } from "../models/onboardingModel";
 import { AuthenticatedRequest } from "../middleware/authMiddleware";
 import { sendOtp } from "../utils/emailService";
 
+// Helper to generate a 4-digit OTP code
+const generateOtpCode = () => {
+    return Math.floor(1000 + Math.random() * 9000).toString();
+};
+
 // START:: Create or update onboarding
 const createOrUpdateOnboarding = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
@@ -16,10 +21,21 @@ const createOrUpdateOnboarding = async (req: AuthenticatedRequest, res: Response
         // Remove legacy 'completed' number from payload if the frontend sends it
         delete updateData.completed;
 
+        // Auto-generate and send OTP if email is available
+        const email = req.user?.email;
+        if (email) {
+            const otp = generateOtpCode();
+            const emailSent = await sendOtp(email, otp);
+            if (emailSent) {
+                updateData.otp = otp;
+            }
+        }
+
         const onboarding = await Onboarding.findOneAndUpdate(
             { userId },
             { 
                 $set: updateData,
+                $unset: { opt: 1 }, // Always ensure legacy field is removed
                 $setOnInsert: {
                     "completed.stage": false,
                     "completed.skills": false,
@@ -32,7 +48,7 @@ const createOrUpdateOnboarding = async (req: AuthenticatedRequest, res: Response
         );
 
         res.status(200).json({
-            message: "Onboarding saved successfully",
+            message: "Onboarding saved successfully" + (updateData.otp ? " and OTP sent" : ""),
             data: onboarding
         });
     } catch (error) {
@@ -57,12 +73,7 @@ const sendOtpEmail = async (req: AuthenticatedRequest, res: Response): Promise<v
             return;
         }
 
-
-// Generate otp code
-const generateOtpCode = () => {
-  return Math.floor(1000 + Math.random() * 9000).toString();
-};
-const otp = generateOtpCode();        
+        const otp = generateOtpCode();        
 
         const emailSent = await sendOtp(email, otp);
 

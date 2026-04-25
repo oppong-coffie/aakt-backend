@@ -58,7 +58,7 @@ app.use("/auth", authRouter);
 app.use("/onboarding", onboardingRouter);
 app.use("/bizinfra", bizInfraRouter);
 // Business-specific portfolio routes must be registered before generic legacy routes.
-app.use("/portfolio", portfolioBusinessRouter);
+app.use("/business", portfolioBusinessRouter);
 app.use("/portfolio", portfolioRouter);
 app.use("/workloads", workloadRouter);
 app.use("/home", homeRouter);

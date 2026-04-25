@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { User } from '../models/userModels';
 import jwt from 'jsonwebtoken';
 import { verifyGoogleToken } from '../config/googleOAuth';
+import bcrypt from 'bcryptjs';
 
 // START:: Get all users
 const getUsers = async (req: Request, res: Response): Promise<void> => {
@@ -53,9 +54,20 @@ const createUser = async (req: Request, res: Response): Promise<void> => {
 // START:: Update user
 const updateUser = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
-    const { username, email, password, role } = req.body;
+    const { fullName, email, password } = req.body;
     try {
-        const user = await User.findByIdAndUpdate(id, { username, email, password, role });
+        const user = await User.findById(id);
+        if (!user) {
+            res.status(404).json({ error: 'User not found' });
+            return;
+        }
+
+        if (fullName) user.fullName = fullName;
+        if (email) user.email = email;
+        if (password) user.password = password;
+
+        await user.save();
+
         res.status(200).json({ message: `User with id: ${id} updated successfully`, data: user });
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });
@@ -84,8 +96,9 @@ const login = async (req: Request, res: Response): Promise<void> => {
             return;
         }
 
-        // Compare plain text password temporarily as per current createUser implementation
-        if (user.password !== password) {
+        // Verify password
+        const isMatch = await bcrypt.compare(password, user.password!);
+        if (!isMatch) {
             res.status(401).json({ error: 'Invalid credentials' });
             return;
         }
