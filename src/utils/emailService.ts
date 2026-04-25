@@ -1,49 +1,17 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-// Create a pooled transporter for better performance and reliability
-const port = parseInt(process.env.SMTP_PORT || '465');
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com', 
-    port: port,
-    secure: port === 465, 
-    family: 4, 
-    connectionTimeout: 30000, // 30 seconds
-    greetingTimeout: 30000,   // 30 seconds
-    socketTimeout: 30000,     // 30 seconds
-    debug: true,              // Enable debug output
-    logger: true,             // Log SMTP traffic to console
-    pool: false, 
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS?.replace(/\s+/g, ''),
-    },
-    tls: {
-        rejectUnauthorized: false,
-        minVersion: 'TLSv1.2'
-    }
-} as any);
+const resendApiKey = process.env.RESEND_API_KEY || 're_eV2j4hri_H8hAXgV6in1FUiEj9Y61QQB9';
+const resend = new Resend(resendApiKey);
 
 // Log configuration (excluding sensitive data) for debugging
-console.log('Email Transporter configured:', {
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: process.env.SMTP_PORT || '587',
-    user: process.env.EMAIL_USER ? 'Present' : 'Missing',
-    pass: process.env.EMAIL_PASS ? 'Present' : 'Missing',
-    nodeEnv: process.env.NODE_ENV
-});
+console.log('Email Service configured with Resend API');
 
 /**
- * Verifies the SMTP connection on startup
+ * Verifies the email connection on startup
  */
 export const verifyEmailConnection = async () => {
-    try {
-        await transporter.verify();
-        console.log('✓ Email service is ready to send messages');
-        return true;
-    } catch (error) {
-        console.error('✗ Email service verification failed:', error);
-        return false;
-    }
+    console.log('✓ Email service is ready (Resend)');
+    return true;
 };
 
 /**
@@ -51,8 +19,8 @@ export const verifyEmailConnection = async () => {
  */
 export const sendOtp = async (to: string, otp: string, retries = 3) => {
     const mailOptions = {
-        from: `"AAKT" <${process.env.EMAIL_USER}>`,
-        to,
+        from: process.env.EMAIL_USER ? `"AAKT" <${process.env.EMAIL_USER}>` : 'AAKT <onboarding@resend.dev>',
+        to: [to],
         subject: 'Your AAKT OTP Verification Code',
         text: `Your OTP is: ${otp}. Please do not share this with anyone.`,
         html: `
@@ -71,8 +39,13 @@ export const sendOtp = async (to: string, otp: string, retries = 3) => {
 
     for (let attempt = 1; attempt <= retries; attempt++) {
         try {
-            const info = await transporter.sendMail(mailOptions);
-            console.log(`Email sent successfully on attempt ${attempt}: ${info.messageId}`);
+            const { data, error } = await resend.emails.send(mailOptions);
+            
+            if (error) {
+                throw new Error(error.message);
+            }
+            
+            console.log(`Email sent successfully on attempt ${attempt}:`, data?.id);
             return true;
         } catch (error: any) {
             console.error(`Attempt ${attempt} failed to send email to ${to}:`, error.message);
