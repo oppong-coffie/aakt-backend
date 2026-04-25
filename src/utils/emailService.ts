@@ -6,15 +6,17 @@ const transporter = nodemailer.createTransport({
     port: parseInt(process.env.SMTP_PORT || '587'),
     secure: process.env.SMTP_PORT === '465', 
     family: 4, 
-    pool: true,
-    maxConnections: 5,
-    maxMessages: 100,
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 10000,   // 10 seconds
+    socketTimeout: 15000,     // 15 seconds
+    pool: false, // Disable pooling for better stability in some cloud environments
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS?.replace(/\s+/g, ''),
     },
     tls: {
-        rejectUnauthorized: false
+        rejectUnauthorized: false,
+        minVersion: 'TLSv1.2'
     }
 } as any);
 
