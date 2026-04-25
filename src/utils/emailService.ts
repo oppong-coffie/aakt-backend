@@ -3,13 +3,15 @@ import nodemailer from 'nodemailer';
 // Create a pooled transporter for better performance and reliability
 const port = parseInt(process.env.SMTP_PORT || '465');
 const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    host: 'smtp.gmail.com', 
     port: port,
-    secure: port === 465, // Port 465 uses direct SSL/TLS
+    secure: port === 465, 
     family: 4, 
-    connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 10000,   // 10 seconds
-    socketTimeout: 15000,     // 15 seconds
+    connectionTimeout: 30000, // 30 seconds
+    greetingTimeout: 30000,   // 30 seconds
+    socketTimeout: 30000,     // 30 seconds
+    debug: true,              // Enable debug output
+    logger: true,             // Log SMTP traffic to console
     pool: false, 
     auth: {
         user: process.env.EMAIL_USER,
