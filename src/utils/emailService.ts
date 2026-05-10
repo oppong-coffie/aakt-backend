@@ -19,7 +19,7 @@ export const verifyEmailConnection = async () => {
  */
 export const sendOtp = async (to: string, otp: string, retries = 3) => {
     const mailOptions = {
-        from: process.env.EMAIL_USER ? `"AAKT" <${process.env.EMAIL_USER}>` : 'AAKT <onboarding@resend.dev>',
+        from: 'AAKT <onboarding@aakt.io>',
         to: [to],
         subject: 'Your AAKT OTP Verification Code',
         text: `Your OTP is: ${otp}. Please do not share this with anyone.`,

@@ -63,6 +63,44 @@ const swaggerDefinition = {
             format: 'date-time'
           }
         }
+      },
+      BusinessTask: {
+        type: 'object',
+        required: ['businessId', 'taskName'],
+        properties: {
+          businessId: {
+            type: 'string',
+            example: '60d21b4667d0d8992e610c85'
+          },
+          taskName: {
+            type: 'string',
+            example: 'Submit Quarterly Report'
+          },
+          documents: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                name: {
+                  type: 'string',
+                  example: 'Q3 Financials'
+                },
+                url: {
+                  type: 'string',
+                  example: 'https://example.com/docs/q3.pdf'
+                }
+              }
+            }
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time'
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time'
+          }
+        }
       }
     }
   },
@@ -78,6 +116,14 @@ const swaggerDefinition = {
     {
       name: "Portfolio",
       description: "Endpoints for managing business portfolios",
+    },
+    {
+      name: "BusinessItems",
+      description: "Endpoints for managing business tasks and items",
+    },
+    {
+      name: "BusinessDocuments",
+      description: "Endpoints for managing independent business documents",
     },
   ],
 };

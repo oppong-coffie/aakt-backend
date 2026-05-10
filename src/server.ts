@@ -9,6 +9,8 @@ import portfolioRouter from "./routes/portfolioRoutes2";
 import portfolioBusinessRouter from "./routes/portfolioRoute";
 import workloadRouter from "./routes/workloadRoutes";
 import homeRouter from "./routes/homeRoute";
+import businessitemsRouter from "./routes/businessitemsRoutes";
+import businessDocumentRouter from "./routes/businessDocumentRoutes";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger";
 import mongoose from 'mongoose';
@@ -21,7 +23,7 @@ const app = express();
 app.use(cors({
   origin: process.env.FRONTEND_URL || '*',
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(morgan("tiny"));
@@ -62,6 +64,8 @@ app.use("/business", portfolioBusinessRouter);
 app.use("/portfolio", portfolioRouter);
 app.use("/workloads", workloadRouter);
 app.use("/home", homeRouter);
+app.use("/businessitems", businessitemsRouter);
+app.use("/businessdocuments", businessDocumentRouter);
 
 // Swagger documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
