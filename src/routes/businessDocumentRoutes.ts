@@ -1,6 +1,6 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/authMiddleware';
-import { submitBusinessDocument, getBusinessDocuments } from '../controllers/businessDocumentController';
+import { submitBusinessDocument, getBusinessDocuments, getBusinessDocumentById } from '../controllers/businessDocumentController';
 
 const businessDocumentRouter = express.Router();
 businessDocumentRouter.use(authenticateToken as any);
@@ -71,5 +71,35 @@ businessDocumentRouter.post('/', submitBusinessDocument);
  *         description: Internal server error
  */
 businessDocumentRouter.get('/:businessId', getBusinessDocuments);
+
+/**
+ * @swagger
+ * /businessdocuments/detail/{documentId}:
+ *   get:
+ *     summary: Get a single business document by ID
+ *     description: Retrieve a single business document by its document ID
+ *     tags: [BusinessDocuments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: documentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the document
+ *     responses:
+ *       200:
+ *         description: Document retrieved successfully
+ *       400:
+ *         description: Bad request - missing documentId
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Document not found
+ *       500:
+ *         description: Internal server error
+ */
+businessDocumentRouter.get('/detail/:documentId', getBusinessDocumentById);
 
 export default businessDocumentRouter;

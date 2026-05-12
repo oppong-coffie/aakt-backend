@@ -1,6 +1,6 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/authMiddleware';
-import { submitBusinessTask, getBusinessTasks, addDocumentToTask } from '../controllers/businessitemsController';
+import { submitBusinessTask, getBusinessTasks, addDocumentToTask, getBusinessTaskById } from '../controllers/businessitemsController';
 
 const businessitemsRouter = express.Router();
 businessitemsRouter.use(authenticateToken as any);
@@ -92,6 +92,44 @@ businessitemsRouter.post('/task', submitBusinessTask);
  *         description: Internal server error
  */
 businessitemsRouter.get('/task/:businessId', getBusinessTasks);
+
+/**
+ * @swagger
+ * /businessitems/task/detail/{taskId}:
+ *   get:
+ *     summary: Get a single business task by ID
+ *     description: Retrieve a single business task details by its taskId
+ *     tags: [BusinessItems]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: taskId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the business task
+ *         example: 60d21b4667d0d8992e610c85
+ *     responses:
+ *       200:
+ *         description: Business task retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   $ref: '#/components/schemas/BusinessTask'
+ *       400:
+ *         description: Bad request - missing taskId
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Task not found
+ *       500:
+ *         description: Internal server error
+ */
+businessitemsRouter.get('/task/detail/:taskId', getBusinessTaskById);
 
 /**
  * @swagger

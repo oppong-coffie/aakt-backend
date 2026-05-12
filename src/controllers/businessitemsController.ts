@@ -83,3 +83,24 @@ export const addDocumentToTask = async (req: Request, res: Response): Promise<vo
         res.status(500).json({ error: (error as Error).message });
     }
 };
+
+export const getBusinessTaskById = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { taskId } = req.params;
+
+        if (!taskId) {
+            res.status(400).json({ error: 'taskId is required.' });
+            return;
+        }
+
+        const task = await BusinessTask.findById(taskId);
+        if (!task) {
+            res.status(404).json({ error: 'Business task not found.' });
+            return;
+        }
+
+        res.status(200).json({ data: task });
+    } catch (error) {
+        res.status(500).json({ error: (error as Error).message });
+    }
+};

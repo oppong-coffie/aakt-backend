@@ -1,17 +1,22 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-const resendApiKey = process.env.RESEND_API_KEY || 're_eV2j4hri_H8hAXgV6in1FUiEj9Y61QQB9';
-const resend = new Resend(resendApiKey);
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
 
-// Log configuration (excluding sensitive data) for debugging
-console.log('Email Service configured with Resend API');
-
-/**
- * Verifies the email connection on startup
- */
 export const verifyEmailConnection = async () => {
-    console.log('✓ Email service is ready (Resend)');
-    return true;
+    try {
+        await transporter.verify();
+        console.log('✓ Email service is ready (Nodemailer SMTP)');
+        return true;
+    } catch (error) {
+        console.error('✗ Email service verification failed:', error);
+        return false;
+    }
 };
 
 /**
@@ -19,8 +24,8 @@ export const verifyEmailConnection = async () => {
  */
 export const sendOtp = async (to: string, otp: string, retries = 3) => {
     const mailOptions = {
-        from: 'AAKT <onboarding@aakt.io>',
-        to: [to],
+        from: `AAKT <${process.env.EMAIL_USER || 'onboarding@aakt.io'}>`,
+        to: to,
         subject: 'Your AAKT OTP Verification Code',
         text: `Your OTP is: ${otp}. Please do not share this with anyone.`,
         html: `
@@ -39,13 +44,9 @@ export const sendOtp = async (to: string, otp: string, retries = 3) => {
 
     for (let attempt = 1; attempt <= retries; attempt++) {
         try {
-            const { data, error } = await resend.emails.send(mailOptions);
+            const info = await transporter.sendMail(mailOptions);
             
-            if (error) {
-                throw new Error(error.message);
-            }
-            
-            console.log(`Email sent successfully on attempt ${attempt}:`, data?.id);
+            console.log(`Email sent successfully on attempt ${attempt}:`, info.messageId);
             return true;
         } catch (error: any) {
             console.error(`Attempt ${attempt} failed to send email to ${to}:`, error.message);
