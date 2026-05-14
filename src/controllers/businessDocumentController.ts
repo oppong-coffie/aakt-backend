@@ -59,3 +59,30 @@ export const getBusinessDocumentById = async (req: Request, res: Response): Prom
         res.status(500).json({ error: (error as Error).message });
     }
 };
+
+export const updateBusinessDocumentFolder = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { documentId } = req.params;
+        const { folderId } = req.body;
+
+        if (!documentId || !folderId) {
+            res.status(400).json({ error: 'documentId and folderId are required.' });
+            return;
+        }
+
+        const updatedDoc = await BusinessDocument.findByIdAndUpdate(
+            documentId,
+            { $set: { folderId } },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedDoc) {
+            res.status(404).json({ error: 'Business document not found.' });
+            return;
+        }
+
+        res.status(200).json({ message: 'Document folder updated successfully', data: updatedDoc });
+    } catch (error) {
+        res.status(500).json({ error: (error as Error).message });
+    }
+};

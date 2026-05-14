@@ -1,6 +1,6 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/authMiddleware';
-import { submitBusinessDocument, getBusinessDocuments, getBusinessDocumentById } from '../controllers/businessDocumentController';
+import { submitBusinessDocument, getBusinessDocuments, getBusinessDocumentById, updateBusinessDocumentFolder } from '../controllers/businessDocumentController';
 
 const businessDocumentRouter = express.Router();
 businessDocumentRouter.use(authenticateToken as any);
@@ -101,5 +101,44 @@ businessDocumentRouter.get('/:businessId', getBusinessDocuments);
  *         description: Internal server error
  */
 businessDocumentRouter.get('/detail/:documentId', getBusinessDocumentById);
+
+/**
+ * @swagger
+ * /businessdocuments/{documentId}/folder:
+ *   patch:
+ *     summary: Append folder ID to a business document
+ *     description: Update the folderId field of an existing business document
+ *     tags: [BusinessDocuments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: documentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the business document
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - folderId
+ *             properties:
+ *               folderId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Document folder updated successfully
+ *       400:
+ *         description: Bad request - missing fields
+ *       404:
+ *         description: Document not found
+ *       500:
+ *         description: Internal server error
+ */
+businessDocumentRouter.patch('/:documentId/folder', updateBusinessDocumentFolder);
 
 export default businessDocumentRouter;

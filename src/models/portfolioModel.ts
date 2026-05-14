@@ -34,6 +34,7 @@ export interface IProject extends Document {
   businessId: string;
   projectName: string;
   projectDescription?: string;
+  folderId?: string;
   userid: string;
   createdAt: Date;
   updatedAt: Date;
@@ -43,6 +44,7 @@ const projectSchema = new Schema<IProject>({
   businessId: { type: String, required: true },
   projectName: { type: String, required: true },
   projectDescription: { type: String },
+  folderId: { type: String },
   userid: { type: String, required: true },
 }, {
   timestamps: true,
@@ -50,15 +52,17 @@ const projectSchema = new Schema<IProject>({
 
 export const Project = model<IProject>('projects', projectSchema);
 
-export interface ITask {
+export interface IDocumentItem {
   _id?: string;
-  taskName: string;
+  documentName: string;
+  url: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-const taskSchema = new Schema<ITask>({
-  taskName: { type: String, required: true },
+const documentItemSchema = new Schema<IDocumentItem>({
+  documentName: { type: String, required: true },
+  url: { type: String, required: true },
 }, {
   timestamps: true,
 });
@@ -88,7 +92,7 @@ export interface IProcess extends Document {
   projectId: string;
   phaseId: string;
   processName: string;
-  tasks: ITask[];
+  documents: IDocumentItem[];
   userid: string;
   createdAt: Date;
   updatedAt: Date;
@@ -99,7 +103,7 @@ const processSchema = new Schema<IProcess>({
   projectId: { type: String, required: true },
   phaseId: { type: String, required: true },
   processName: { type: String, required: true },
-  tasks: { type: [taskSchema], default: [] },
+  documents: { type: [documentItemSchema], default: [] },
   userid: { type: String, required: true },
 }, {
   timestamps: true,

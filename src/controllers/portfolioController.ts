@@ -174,6 +174,41 @@ export const getProjects = async (req: Request, res: Response): Promise<void> =>
 };
 // END:: Get projects of a business
 
+// START:: Assign folder to a project
+export const updateProjectFolder = async (req: Request, res: Response): Promise<void> => {
+    const { projectId } = req.params;
+    const { folderId } = req.body;
+    const userId = (req as AuthenticatedRequest).user?.id;
+
+    if (!userId) {
+        res.status(401).json({ error: 'Unauthorized: token required' });
+        return;
+    }
+
+    if (!projectId || !folderId) {
+        res.status(400).json({ error: 'projectId and folderId are required.' });
+        return;
+    }
+
+    try {
+        const updatedProject = await Project.findOneAndUpdate(
+            { _id: projectId, userid: userId },
+            { $set: { folderId } },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedProject) {
+            res.status(404).json({ error: 'Project not found' });
+            return;
+        }
+
+        res.status(200).json({ message: 'Project folder updated successfully', data: updatedProject });
+    } catch (error) {
+        res.status(500).json({ error: (error as Error).message });
+    }
+};
+// END:: Assign folder to a project
+
 // START:: Get phases of a project
 export const getPhases = async (req: Request, res: Response): Promise<void> => {
     const { projectId } = req.params;
@@ -246,7 +281,7 @@ export const createProcess = async (req: Request, res: Response): Promise<void> 
             projectId,
             phaseId,
             processName,
-            tasks: [],
+            documents: [],
             userid: userId,
         });
 
@@ -258,9 +293,9 @@ export const createProcess = async (req: Request, res: Response): Promise<void> 
 };
 // END:: Create a new Process
 
-// START:: Create a new Task
-export const createTask = async (req: Request, res: Response): Promise<void> => {
-    const { processId, taskName } = req.body;
+// START:: Create a new Document
+export const createDocument = async (req: Request, res: Response): Promise<void> => {
+    const { processId, documentName, url } = req.body;
     const userId = (req as AuthenticatedRequest).user?.id;
 
     if (!userId) {
@@ -268,15 +303,15 @@ export const createTask = async (req: Request, res: Response): Promise<void> => 
         return;
     }
 
-    if (!processId || !taskName) {
-        res.status(400).json({ error: 'processId and taskName are required.' });
+    if (!processId || !documentName || !url) {
+        res.status(400).json({ error: 'processId, documentName, and url are required.' });
         return;
     }
 
     try {
         const updatedProcess = await ProcessModel.findOneAndUpdate(
             { _id: processId, userid: userId },
-            { $push: { tasks: { taskName } } },
+            { $push: { documents: { documentName, url } } },
             { new: true, runValidators: true }
         );
 
@@ -285,13 +320,13 @@ export const createTask = async (req: Request, res: Response): Promise<void> => 
             return;
         }
 
-        const createdTask = updatedProcess.tasks[updatedProcess.tasks.length - 1];
-        res.status(201).json({ message: 'Task created successfully', data: createdTask });
+        const createdDocument = updatedProcess.documents[updatedProcess.documents.length - 1];
+        res.status(201).json({ message: 'Document created successfully', data: createdDocument });
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });
     }
 };
-// END:: Create a new Task
+// END:: Create a new Document
 
 // START:: Get processes of a phase
 export const getProcesses = async (req: Request, res: Response): Promise<void> => {

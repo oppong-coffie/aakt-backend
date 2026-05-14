@@ -3,13 +3,14 @@ import { authenticateToken } from '../middleware/authMiddleware';
 import {
   createProject,
   getProjects,
+  updateProjectFolder,
   createPhase,
   getPhases,
   getBusinessPhases,
   createProcess,
   getProcesses,
   getBusinessProcesses,
-  createTask
+  createDocument
 } from '../controllers/portfolioController';
 
 const portfolioRouter = express.Router();
@@ -58,6 +59,45 @@ portfolioRouter.post('/projects', createProject);
  *           type: string
  */
 portfolioRouter.get('/projects/:businessId', getProjects);
+
+/**
+ * @swagger
+ * /portfolio/projects/{projectId}/folder:
+ *   patch:
+ *     summary: Update project's associated folder
+ *     tags: [Portfolio]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: projectId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - folderId
+ *             properties:
+ *               folderId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Project folder updated successfully
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Project not found
+ *       500:
+ *         description: Server error
+ */
+portfolioRouter.patch('/projects/:projectId/folder', updateProjectFolder);
 
 /**
  * @swagger
@@ -127,13 +167,30 @@ portfolioRouter.get('/processes/all/:businessId', getBusinessProcesses);
 
 /**
  * @swagger
- * /portfolio/tasks:
+ * /portfolio/documents:
  *   post:
- *     summary: Create a new task
+ *     summary: Create a new document
  *     tags: [Portfolio]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - processId
+ *               - documentName
+ *               - url
+ *             properties:
+ *               processId:
+ *                 type: string
+ *               documentName:
+ *                 type: string
+ *               url:
+ *                 type: string
  */
-portfolioRouter.post('/tasks', createTask);
+portfolioRouter.post('/documents', createDocument);
 
 export default portfolioRouter;

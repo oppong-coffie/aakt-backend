@@ -1,6 +1,6 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/authMiddleware';
-import { submitBusinessTask, getBusinessTasks, addDocumentToTask, getBusinessTaskById } from '../controllers/businessitemsController';
+import { submitBusinessTask, getBusinessTasks, addDocumentToTask, getBusinessTaskById, updateBusinessTaskFolder } from '../controllers/businessitemsController';
 
 const businessitemsRouter = express.Router();
 businessitemsRouter.use(authenticateToken as any);
@@ -175,5 +175,46 @@ businessitemsRouter.get('/task/detail/:taskId', getBusinessTaskById);
  *         description: Internal server error
  */
 businessitemsRouter.patch('/task/:taskId/document', addDocumentToTask);
+
+/**
+ * @swagger
+ * /businessitems/task/{taskId}/folder:
+ *   patch:
+ *     summary: Append folder ID to a business task
+ *     description: Update the folderId field of an existing business task
+ *     tags: [BusinessItems]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: taskId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the business task
+ *         example: 60d21b4667d0d8992e610c85
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - folderId
+ *             properties:
+ *               folderId:
+ *                 type: string
+ *                 example: 60d21b4667d0d8992e610c85
+ *     responses:
+ *       200:
+ *         description: Task folder updated successfully
+ *       400:
+ *         description: Bad request - missing fields
+ *       404:
+ *         description: Task not found
+ *       500:
+ *         description: Internal server error
+ */
+businessitemsRouter.patch('/task/:taskId/folder', updateBusinessTaskFolder);
 
 export default businessitemsRouter;

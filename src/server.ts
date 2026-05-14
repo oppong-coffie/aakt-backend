@@ -11,6 +11,7 @@ import workloadRouter from "./routes/workloadRoutes";
 import homeRouter from "./routes/homeRoute";
 import businessitemsRouter from "./routes/businessitemsRoutes";
 import businessDocumentRouter from "./routes/businessDocumentRoutes";
+import folderRouter from "./routes/folderRoutes";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger";
 import mongoose from 'mongoose';
@@ -66,6 +67,7 @@ app.use("/workloads", workloadRouter);
 app.use("/home", homeRouter);
 app.use("/businessitems", businessitemsRouter);
 app.use("/businessdocuments", businessDocumentRouter);
+app.use("/folders", folderRouter);
 
 // Swagger documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

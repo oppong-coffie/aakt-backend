@@ -104,3 +104,30 @@ export const getBusinessTaskById = async (req: Request, res: Response): Promise<
         res.status(500).json({ error: (error as Error).message });
     }
 };
+
+export const updateBusinessTaskFolder = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { taskId } = req.params;
+        const { folderId } = req.body;
+
+        if (!taskId || !folderId) {
+            res.status(400).json({ error: 'taskId and folderId are required.' });
+            return;
+        }
+
+        const updatedTask = await BusinessTask.findByIdAndUpdate(
+            taskId,
+            { $set: { folderId } },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedTask) {
+            res.status(404).json({ error: 'Business task not found.' });
+            return;
+        }
+
+        res.status(200).json({ message: 'Task folder updated successfully', data: updatedTask });
+    } catch (error) {
+        res.status(500).json({ error: (error as Error).message });
+    }
+};

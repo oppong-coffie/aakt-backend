@@ -125,6 +125,10 @@ const swaggerDefinition = {
       name: "BusinessDocuments",
       description: "Endpoints for managing independent business documents",
     },
+    {
+      name: "Folders",
+      description: "Endpoints for managing folders",
+    },
   ],
 };
 

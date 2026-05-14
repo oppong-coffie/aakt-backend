@@ -8,6 +8,7 @@ export interface IDocument {
 export interface IBusinessTask extends Document {
   businessId: Types.ObjectId | string;
   taskName: string;
+  folderId?: string;
   documents: IDocument[];
   createdAt: Date;
   updatedAt: Date;
@@ -21,6 +22,7 @@ const documentSchema = new Schema<IDocument>({
 const businessTaskSchema = new Schema<IBusinessTask>({
   businessId: { type: Schema.Types.Mixed, required: true },
   taskName: { type: String, required: true },
+  folderId: { type: String },
   documents: { type: [documentSchema], default: [] }
 }, {
   timestamps: true

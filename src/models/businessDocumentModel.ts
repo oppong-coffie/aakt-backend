@@ -4,6 +4,7 @@ export interface IBusinessDocument extends Document {
   businessId: Types.ObjectId | string;
   name: string;
   url: string;
+  folderId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -11,7 +12,8 @@ export interface IBusinessDocument extends Document {
 const businessDocumentSchema = new Schema<IBusinessDocument>({
   businessId: { type: Schema.Types.Mixed, required: true },
   name: { type: String, required: true },
-  url: { type: String, required: true }
+  url: { type: String, required: true },
+  folderId: { type: String }
 }, {
   timestamps: true
 });
