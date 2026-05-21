@@ -29,6 +29,10 @@ function getMongoConnectionHint(error: unknown): string {
 }
 
 async function startServer() {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+
     if (!mongoUri) {
         console.error("MONGODB_URI is not set. Add it to aakt-backend/.env before starting the server.");
         process.exit(1);
@@ -38,10 +42,6 @@ async function startServer() {
         await mongoose.connect(mongoUri);
         console.log('SUCCESSFULLY CONNECTED TO MONGODB');
         verifyEmailConnection();
-
-        app.listen(PORT, () => {
-            console.log(`Server is running on port ${PORT}`);
-        });
     } catch (error) {
         console.error('Error connecting to MongoDB:', error);
         console.error(getMongoConnectionHint(error));
