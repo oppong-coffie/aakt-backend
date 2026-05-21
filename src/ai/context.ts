@@ -7,6 +7,7 @@ import { Onboarding } from '../models/onboardingModel';
 import { Business, Phase, ProcessModel, Project } from '../models/portfolioModel';
 import { Workload } from '../models/workloadModel';
 import { WorkspaceContext } from './types';
+import { Types } from 'mongoose';
 
 const DEFAULT_LIMIT = 40;
 
@@ -64,11 +65,15 @@ export async function getWorkspaceContext(userId: string): Promise<WorkspaceCont
   ]);
 
   const businessIds = businesses.map((business) => business._id.toString());
+  const businessObjectIds = businessIds
+    .filter((businessId) => Types.ObjectId.isValid(businessId))
+    .map((businessId) => new Types.ObjectId(businessId));
+  const businessIdQueryValues = [...businessIds, ...businessObjectIds];
   const [businessTasks, businessDocuments, agents] = await Promise.all([
-    BusinessTask.find({ businessId: { $in: businessIds } })
+    BusinessTask.find({ businessId: { $in: businessIdQueryValues } })
       .sort({ createdAt: -1 })
       .limit(DEFAULT_LIMIT),
-    BusinessDocument.find({ businessId: { $in: businessIds } })
+    BusinessDocument.find({ businessId: { $in: businessIdQueryValues } })
       .sort({ createdAt: -1 })
       .limit(DEFAULT_LIMIT),
     Agent.find({ businessId: { $in: businessIds } })
@@ -172,7 +177,13 @@ export function summarizeWorkspaceContext(context: WorkspaceContext): string {
       onboarding: context.onboarding,
       recentBusinesses: context.businesses.slice(0, 10),
       recentWorkloads: context.workloads.slice(0, 10),
+      recentFolders: context.folders.slice(0, 20),
       recentProjects: context.projects.slice(0, 10),
+      recentPhases: context.phases.slice(0, 20),
+      recentProcesses: context.processes.slice(0, 20),
+      recentBusinessTasks: context.businessTasks.slice(0, 20),
+      recentBusinessDocuments: context.businessDocuments.slice(0, 20),
+      recentAgents: context.agents.slice(0, 20),
       recentBizInfra: context.bizInfra,
     },
     null,
