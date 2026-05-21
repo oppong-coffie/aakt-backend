@@ -9,6 +9,10 @@ const swaggerDefinition = {
   },
   servers: [
     {
+      url: "https://aakt-backend-production.up.railway.app",
+      description: "Production server",
+    },
+    {
       url: "http://localhost:3000",
       description: "Local server",
     },

@@ -36,6 +36,11 @@ app.use(cors({
     
     const normalizedOrigin = origin.trim().replace(/\/$/, '');
     
+    // Always allow localhost origins for local development and testing
+    if (/^https?:\/\/localhost(:\d+)?$/.test(normalizedOrigin)) {
+      return callback(null, true);
+    }
+    
     // If FRONTEND_URL is configured, match against it case-insensitively
     if (allowedOrigins.length > 0) {
       const isAllowed = allowedOrigins.some(allowed => allowed.toLowerCase() === normalizedOrigin.toLowerCase());
