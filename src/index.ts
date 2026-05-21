@@ -3,6 +3,7 @@ dotenv.config({ override: true });
 import app from "./server";
 import mongoose from "mongoose";
 import { verifyEmailConnection } from "./utils/emailService";
+import dns from 'dns';
 
 const PORT = process.env.PORT || 3000;
 const mongoUri = process.env.MONGODB_URI;
@@ -29,6 +30,23 @@ function getMongoConnectionHint(error: unknown): string {
 }
 
 async function startServer() {
+    if (mongoUri && mongoUri.startsWith('mongodb+srv://')) {
+        try {
+            const parts = mongoUri.split('@')[1];
+            const hostname = parts ? parts.split('/')[0].split('?')[0] : '';
+            if (hostname) {
+                await dns.promises.resolveSrv(`_mongodb._tcp.${hostname}`);
+            }
+        } catch (dnsError) {
+            console.warn("⚠️  Local DNS failed to resolve MongoDB SRV record. Switching to public DNS (8.8.8.8, 1.1.1.1)...");
+            try {
+                dns.setServers(['8.8.8.8', '1.1.1.1']);
+            } catch (err) {
+                console.error("Failed to set DNS servers:", err);
+            }
+        }
+    }
+
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
     });
