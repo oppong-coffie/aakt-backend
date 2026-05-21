@@ -12,6 +12,7 @@ import homeRouter from "./routes/homeRoute";
 import businessitemsRouter from "./routes/businessitemsRoutes";
 import businessDocumentRouter from "./routes/businessDocumentRoutes";
 import folderRouter from "./routes/folderRoutes";
+import adminRouter from "./routes/adminRoutes";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger";
 import mongoose from 'mongoose';
@@ -22,7 +23,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
+  origin: process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',') : true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -30,7 +31,7 @@ app.use(cors({
 app.use(morgan("tiny"));
 app.use(express.json());
 
-// Add security headers (less restrictive for OAuth)
+// Security headers (less restrictive for OAuth)
 app.use((req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
@@ -68,6 +69,7 @@ app.use("/home", homeRouter);
 app.use("/businessitems", businessitemsRouter);
 app.use("/businessdocuments", businessDocumentRouter);
 app.use("/folders", folderRouter);
+app.use("/admin", adminRouter);
 
 // Swagger documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

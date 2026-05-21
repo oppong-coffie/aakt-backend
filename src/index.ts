@@ -1,4 +1,5 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config({ override: true });
 import app from "./server";
 import mongoose from "mongoose";
 import { verifyEmailConnection } from "./utils/emailService";
