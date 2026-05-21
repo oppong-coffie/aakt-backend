@@ -50,6 +50,90 @@ function sanitizeLinkedDocuments(value: unknown): Array<{ name: string; url: str
     .filter((item): item is { name: string; url: string } => Boolean(item));
 }
 
+function firstInputValue(
+  input: Record<string, unknown>,
+  aliases: string[]
+): unknown {
+  for (const alias of aliases) {
+    if (input[alias] !== undefined) {
+      return input[alias];
+    }
+  }
+  return undefined;
+}
+
+function copyInputAlias(
+  target: Record<string, unknown>,
+  source: Record<string, unknown>,
+  canonicalField: string,
+  aliases: string[]
+): void {
+  const value = firstInputValue(source, [canonicalField, ...aliases]);
+  if (value !== undefined) {
+    target[canonicalField] = value;
+  }
+}
+
+function normalizeActionInput(
+  toolName: AgentToolName,
+  input: Record<string, unknown>
+): Record<string, unknown> {
+  const normalized = { ...input };
+  copyInputAlias(normalized, input, 'businessId', ['businessid', 'business_id']);
+  copyInputAlias(normalized, input, 'projectId', ['projectid', 'project_id']);
+  copyInputAlias(normalized, input, 'phaseId', ['phaseid', 'phase_id']);
+  copyInputAlias(normalized, input, 'folderId', ['folderid', 'folder_id']);
+  copyInputAlias(normalized, input, 'workloadId', ['workloadid', 'workload_id']);
+  copyInputAlias(normalized, input, 'taskId', ['taskid', 'task_id']);
+  copyInputAlias(normalized, input, 'imageUrl', ['imageurl', 'image_url']);
+
+  switch (toolName) {
+    case 'create_folder':
+      copyInputAlias(normalized, input, 'folderName', ['foldername', 'folder_name', 'name']);
+      break;
+    case 'create_project':
+      copyInputAlias(normalized, input, 'projectName', ['projectname', 'project_name', 'name']);
+      copyInputAlias(normalized, input, 'projectDescription', [
+        'projectdescription',
+        'project_description',
+        'description',
+      ]);
+      break;
+    case 'create_phase':
+      copyInputAlias(normalized, input, 'phaseName', ['phasename', 'phase_name', 'name']);
+      copyInputAlias(normalized, input, 'phaseDescription', [
+        'phasedescription',
+        'phase_description',
+        'description',
+      ]);
+      break;
+    case 'create_process':
+      copyInputAlias(normalized, input, 'processName', ['processname', 'process_name', 'name']);
+      break;
+    case 'create_workload':
+      copyInputAlias(normalized, input, 'workloadname', [
+        'workloadName',
+        'workload_name',
+        'name',
+      ]);
+      break;
+    case 'create_workload_task':
+      copyInputAlias(normalized, input, 'taskname', ['taskName', 'task_name', 'name']);
+      break;
+    case 'create_business_task':
+      copyInputAlias(normalized, input, 'taskName', ['taskname', 'task_name', 'name']);
+      copyInputAlias(normalized, input, 'documents', ['documentLinks', 'document_links']);
+      break;
+    case 'create_business_document':
+      copyInputAlias(normalized, input, 'name', ['documentName', 'documentname', 'document_name']);
+      break;
+    default:
+      break;
+  }
+
+  return normalized;
+}
+
 function isBizInfraCategory(value: string): value is (typeof BIZINFRA_CATEGORIES)[number] {
   return BIZINFRA_CATEGORIES.includes(value as (typeof BIZINFRA_CATEGORIES)[number]);
 }
@@ -101,6 +185,31 @@ export const TOOL_DESCRIPTIONS: Record<AgentToolName, string> = {
   update_workload_task_status: 'Set a workload task status to Todo or Completed.',
 };
 
+export const TOOL_INPUT_CONTRACTS: Record<AgentToolName, string> = {
+  create_agent:
+    '{ "businessId": "existing business _id", "name": string, "kind": "human|ai|software", "title": string, "email": string, "timezone"?: string }',
+  create_bizinfra_item:
+    '{ "category": "skillset|network|intel|capital|reach", "name": string, "description"?: string, "imageUrl"?: string }',
+  create_business_document:
+    '{ "businessId": "existing business _id", "name": string, "url": string, "folderId"?: "existing folder _id" }',
+  create_business_task:
+    '{ "businessId": "existing business _id", "taskName": string, "folderId"?: "existing folder _id", "documents"?: [{ "name": string, "url": string }] }',
+  create_folder:
+    '{ "folderName": string }',
+  create_phase:
+    '{ "projectId": "existing project _id", "phaseName": string, "phaseDescription"?: string }',
+  create_process:
+    '{ "businessId": "existing business _id", "projectId": "existing project _id", "phaseId": "existing phase _id", "processName": string }',
+  create_project:
+    '{ "businessId": "existing business _id", "projectName": string, "projectDescription"?: string, "folderId"?: "existing folder _id" }',
+  create_workload:
+    '{ "workloadname": string, "status"?: string }',
+  create_workload_task:
+    '{ "workloadId": "existing workload _id", "taskname": string, "status"?: "Todo|Completed" }',
+  update_workload_task_status:
+    '{ "workloadId": "existing workload _id", "taskId": "existing nested task _id from that workload", "status": "Todo|Completed" }',
+};
+
 export function sanitizeActionDraft(action: AgentActionDraft): AgentActionDraft | null {
   if (!TOOL_DESCRIPTIONS[action.toolName]) {
     return null;
@@ -110,17 +219,22 @@ export function sanitizeActionDraft(action: AgentActionDraft): AgentActionDraft 
     toolName: action.toolName,
     title: asString(action.title) ?? TOOL_DESCRIPTIONS[action.toolName],
     description: asString(action.description) ?? TOOL_DESCRIPTIONS[action.toolName],
-    input: action.input && typeof action.input === 'object' && !Array.isArray(action.input)
-      ? action.input
-      : {},
+    input: normalizeActionInput(
+      action.toolName,
+      action.input && typeof action.input === 'object' && !Array.isArray(action.input)
+        ? action.input
+        : {}
+    ),
   };
 }
 
 export async function executeAgentAction(
   toolName: AgentToolName,
-  input: Record<string, unknown>,
+  rawInput: Record<string, unknown>,
   userId: string
 ): Promise<Record<string, unknown>> {
+  const input = normalizeActionInput(toolName, rawInput);
+
   switch (toolName) {
     case 'create_agent': {
       const businessId = requireString(input, 'businessId');
