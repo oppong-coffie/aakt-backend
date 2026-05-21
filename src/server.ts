@@ -12,6 +12,7 @@ import homeRouter from "./routes/homeRoute";
 import businessitemsRouter from "./routes/businessitemsRoutes";
 import businessDocumentRouter from "./routes/businessDocumentRoutes";
 import folderRouter from "./routes/folderRoutes";
+import agentRouter from "./routes/agentRoutes";
 import adminRouter from "./routes/adminRoutes";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger";
@@ -69,6 +70,7 @@ app.use("/home", homeRouter);
 app.use("/businessitems", businessitemsRouter);
 app.use("/businessdocuments", businessDocumentRouter);
 app.use("/folders", folderRouter);
+app.use("/agent", agentRouter);
 app.use("/admin", adminRouter);
 
 // Swagger documentation
