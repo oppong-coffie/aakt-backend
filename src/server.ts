@@ -23,11 +23,35 @@ import googleOAuthClient from "./config/googleOAuth";
 const app = express();
 
 // Middleware
+const allowedOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(',').map(url => url.trim().replace(/\/$/, ''))
+  : [];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',') : true,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, postman)
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    const normalizedOrigin = origin.trim().replace(/\/$/, '');
+    
+    // If FRONTEND_URL is configured, match against it case-insensitively
+    if (allowedOrigins.length > 0) {
+      const isAllowed = allowedOrigins.some(allowed => allowed.toLowerCase() === normalizedOrigin.toLowerCase());
+      if (isAllowed) {
+        return callback(null, true);
+      } else {
+        console.warn(`[CORS] Origin ${origin} is not in the allowed list:`, allowedOrigins);
+        return callback(null, false);
+      }
+    }
+    
+    // Default fallback: allow origin
+    return callback(null, true);
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 }));
 app.use(morgan("tiny"));
 app.use(express.json());
