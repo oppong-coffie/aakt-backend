@@ -12,6 +12,7 @@ import homeRouter from "./routes/homeRoute";
 import businessitemsRouter from "./routes/businessitemsRoutes";
 import businessDocumentRouter from "./routes/businessDocumentRoutes";
 import folderRouter from "./routes/folderRoutes";
+import agentRouter from "./routes/agentRoutes";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger";
 import mongoose from 'mongoose';
@@ -68,6 +69,7 @@ app.use("/home", homeRouter);
 app.use("/businessitems", businessitemsRouter);
 app.use("/businessdocuments", businessDocumentRouter);
 app.use("/folders", folderRouter);
+app.use("/agent", agentRouter);
 
 // Swagger documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
