@@ -133,6 +133,10 @@ const swaggerDefinition = {
       name: "Folders",
       description: "Endpoints for managing folders",
     },
+    {
+      name: "Admin",
+      description: "Endpoints for admin registration, login, and management",
+    },
   ],
 };
 
