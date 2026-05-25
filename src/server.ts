@@ -14,6 +14,7 @@ import businessDocumentRouter from "./routes/businessDocumentRoutes";
 import folderRouter from "./routes/folderRoutes";
 import agentRouter from "./routes/agentRoutes";
 import adminRouter from "./routes/adminRoutes";
+import youtubeVideoRouter from "./routes/youtubeVideoRoutes";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger";
 import mongoose from 'mongoose';
@@ -101,6 +102,7 @@ app.use("/businessdocuments", businessDocumentRouter);
 app.use("/folders", folderRouter);
 app.use("/agent", agentRouter);
 app.use("/admin", adminRouter);
+app.use("/youtube", youtubeVideoRouter);
 
 // Swagger documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
