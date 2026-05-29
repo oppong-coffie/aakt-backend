@@ -15,6 +15,14 @@ import folderRouter from "./routes/folderRoutes";
 import agentRouter from "./routes/agentRoutes";
 import adminRouter from "./routes/adminRoutes";
 import youtubeVideoRouter from "./routes/youtubeVideoRoutes";
+import skillsRouter from "./routes/skillsRoutes";
+import userWhiteboardRouter from "./routes/userWhiteboardRoutes";
+import userDocumentRouter from "./routes/userDocumentRoutes";
+import userFileRouter from "./routes/userFileRoutes";
+import userSlideRouter from "./routes/userSlideRoutes";
+import userSpreadsheetRouter from "./routes/userSpreadsheetRoutes";
+import contactRouter from "./routes/contactRoutes";
+import capitalRouter from "./routes/capitalRoutes";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger";
 import mongoose from 'mongoose';
@@ -60,7 +68,8 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 }));
 app.use(morgan("tiny"));
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Security headers (less restrictive for OAuth)
 app.use((req, res, next) => {
@@ -103,6 +112,14 @@ app.use("/folders", folderRouter);
 app.use("/agent", agentRouter);
 app.use("/admin", adminRouter);
 app.use("/youtube", youtubeVideoRouter);
+app.use("/skills", skillsRouter);
+app.use("/whiteboard", userWhiteboardRouter);
+app.use("/documents", userDocumentRouter);
+app.use("/files", userFileRouter);
+app.use("/slides", userSlideRouter);
+app.use("/spreadsheets", userSpreadsheetRouter);
+app.use("/contacts", contactRouter);
+app.use("/capital", capitalRouter);
 
 // Swagger documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

@@ -1,90 +1,88 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/authMiddleware';
 import {
-    createBizInfraItem,
-    getBizInfraItems,
-    updateBizInfraItem,
-    deleteBizInfraItem,
-} from '../controllers/bizInfraController';
+    createContact,
+    getContacts,
+    updateContact,
+    deleteContact,
+} from '../controllers/contactController';
 
 const router = express.Router();
 
+// All contact routes require authorization token
 router.use(authenticateToken as any);
 
 /**
  * @swagger
- * /bizinfra/{category}:
+ * /contacts:
  *   post:
- *     summary: Create a new BizInfra item in a category
- *     tags: [BizInfra]
+ *     summary: Create a new contact
+ *     tags: [Contacts]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: category
- *         required: true
- *         schema:
- *           type: string
- *           enum: [skillset, network, intel, capital, reach]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name]
+ *             required: [name, role]
  *             properties:
  *               name:
  *                 type: string
- *                 example: AWS Cloud Infrastructure
- *               description:
+ *                 example: Bessie Cooper
+ *               role:
  *                 type: string
- *                 example: Cloud hosting and computing resources
+ *                 example: Web Designer
+ *               email:
+ *                 type: string
+ *                 example: bessie.cooper@example.com
+ *               phone:
+ *                 type: string
+ *                 example: +1 (555) 001-0203
  *               imageUrl:
  *                 type: string
- *                 example: https://example.com/aws-logo.png
+ *                 example: https://firebasestorage.googleapis.com/...
+ *               bio:
+ *                 type: string
+ *                 example: Passionate web designer...
  *     responses:
  *       201:
- *         description: BizInfra item created successfully
+ *         description: Contact created successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/BizInfra'
+ *               $ref: '#/components/schemas/Contact'
+ *       400:
+ *         description: Name and Role are required
  *       401:
  *         description: Unauthorized
  *   get:
- *     summary: Get all BizInfra items for a category
- *     tags: [BizInfra]
+ *     summary: Get all contacts for the authenticated user
+ *     tags: [Contacts]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: category
- *         required: true
- *         schema:
- *           type: string
- *           enum: [skillset, network, intel, capital, reach]
  *     responses:
  *       200:
- *         description: List of BizInfra items for the category
+ *         description: List of contacts retrieved successfully
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/BizInfra'
+ *                 $ref: '#/components/schemas/Contact'
  *       401:
  *         description: Unauthorized
  */
-router.post('/:category', createBizInfraItem as any);
-router.get('/:category', getBizInfraItems as any);
+router.post('/', createContact as any);
+router.get('/', getContacts as any);
 
 /**
  * @swagger
- * /bizinfra/{id}:
+ * /contacts/{id}:
  *   put:
- *     summary: Update an existing BizInfra item
- *     tags: [BizInfra]
+ *     summary: Update an existing contact
+ *     tags: [Contacts]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -102,24 +100,30 @@ router.get('/:category', getBizInfraItems as any);
  *             properties:
  *               name:
  *                 type: string
- *               description:
+ *               role:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               phone:
  *                 type: string
  *               imageUrl:
  *                 type: string
+ *               bio:
+ *                 type: string
  *     responses:
  *       200:
- *         description: BizInfra item updated successfully
+ *         description: Contact updated successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/BizInfra'
+ *               $ref: '#/components/schemas/Contact'
  *       401:
  *         description: Unauthorized
  *       404:
- *         description: Item not found
+ *         description: Contact not found
  *   delete:
- *     summary: Delete a BizInfra item
- *     tags: [BizInfra]
+ *     summary: Delete a contact
+ *     tags: [Contacts]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -130,13 +134,13 @@ router.get('/:category', getBizInfraItems as any);
  *           type: string
  *     responses:
  *       200:
- *         description: Item deleted successfully
+ *         description: Contact deleted successfully
  *       401:
  *         description: Unauthorized
  *       404:
- *         description: Item not found
+ *         description: Contact not found
  */
-router.put('/:id', updateBizInfraItem as any);
-router.delete('/:id', deleteBizInfraItem as any);
+router.put('/:id', updateContact as any);
+router.delete('/:id', deleteContact as any);
 
 export default router;
