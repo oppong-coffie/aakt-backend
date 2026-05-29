@@ -1,90 +1,82 @@
 import express from 'express';
 import { authenticateToken } from '../middleware/authMiddleware';
 import {
-    createBizInfraItem,
-    getBizInfraItems,
-    updateBizInfraItem,
-    deleteBizInfraItem,
-} from '../controllers/bizInfraController';
+    createFile,
+    getFiles,
+    updateFile,
+    deleteFile,
+} from '../controllers/userFileController';
 
 const router = express.Router();
 
+// Require authorization token for all file endpoints
 router.use(authenticateToken as any);
 
 /**
  * @swagger
- * /bizinfra/{category}:
+ * /files:
  *   post:
- *     summary: Create a new BizInfra item in a category
- *     tags: [BizInfra]
+ *     summary: Upload/Create a new user file record
+ *     tags: [Files]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: category
- *         required: true
- *         schema:
- *           type: string
- *           enum: [skillset, network, intel, capital, reach]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name]
+ *             required: [name, url]
  *             properties:
  *               name:
  *                 type: string
- *                 example: AWS Cloud Infrastructure
- *               description:
+ *                 example: resume.pdf
+ *               url:
  *                 type: string
- *                 example: Cloud hosting and computing resources
- *               imageUrl:
+ *                 example: https://firebasestorage.googleapis.com/v0/b/...
+ *               size:
+ *                 type: number
+ *                 example: 204800
+ *               type:
  *                 type: string
- *                 example: https://example.com/aws-logo.png
+ *                 example: application/pdf
  *     responses:
  *       201:
- *         description: BizInfra item created successfully
+ *         description: File record created successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/BizInfra'
+ *               $ref: '#/components/schemas/UserFile'
+ *       400:
+ *         description: Name and URL are required
  *       401:
  *         description: Unauthorized
  *   get:
- *     summary: Get all BizInfra items for a category
- *     tags: [BizInfra]
+ *     summary: Get all file records for the authenticated user
+ *     tags: [Files]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: category
- *         required: true
- *         schema:
- *           type: string
- *           enum: [skillset, network, intel, capital, reach]
  *     responses:
  *       200:
- *         description: List of BizInfra items for the category
+ *         description: List of files sorted by last updated
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/BizInfra'
+ *                 $ref: '#/components/schemas/UserFile'
  *       401:
  *         description: Unauthorized
  */
-router.post('/:category', createBizInfraItem as any);
-router.get('/:category', getBizInfraItems as any);
+router.post('/', createFile as any);
+router.get('/', getFiles as any);
 
 /**
  * @swagger
- * /bizinfra/{id}:
+ * /files/{id}:
  *   put:
- *     summary: Update an existing BizInfra item
- *     tags: [BizInfra]
+ *     summary: Update an existing file record
+ *     tags: [Files]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -102,24 +94,26 @@ router.get('/:category', getBizInfraItems as any);
  *             properties:
  *               name:
  *                 type: string
- *               description:
+ *               url:
  *                 type: string
- *               imageUrl:
+ *               size:
+ *                 type: number
+ *               type:
  *                 type: string
  *     responses:
  *       200:
- *         description: BizInfra item updated successfully
+ *         description: File record updated successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/BizInfra'
+ *               $ref: '#/components/schemas/UserFile'
  *       401:
  *         description: Unauthorized
  *       404:
- *         description: Item not found
+ *         description: File not found
  *   delete:
- *     summary: Delete a BizInfra item
- *     tags: [BizInfra]
+ *     summary: Delete a file record
+ *     tags: [Files]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -130,13 +124,13 @@ router.get('/:category', getBizInfraItems as any);
  *           type: string
  *     responses:
  *       200:
- *         description: Item deleted successfully
+ *         description: File record deleted successfully
  *       401:
  *         description: Unauthorized
  *       404:
- *         description: Item not found
+ *         description: File not found
  */
-router.put('/:id', updateBizInfraItem as any);
-router.delete('/:id', deleteBizInfraItem as any);
+router.put('/:id', updateFile as any);
+router.delete('/:id', deleteFile as any);
 
 export default router;
