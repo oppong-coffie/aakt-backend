@@ -105,6 +105,94 @@ const swaggerDefinition = {
             format: 'date-time'
           }
         }
+      },
+      Contact: {
+        type: 'object',
+        required: ['name', 'role'],
+        properties: {
+          _id: {
+            type: 'string',
+            example: '60d21b4667d0d8992e610c85'
+          },
+          name: {
+            type: 'string',
+            example: 'Bessie Cooper'
+          },
+          role: {
+            type: 'string',
+            example: 'Web Designer'
+          },
+          email: {
+            type: 'string',
+            example: 'bessie.cooper@example.com'
+          },
+          phone: {
+            type: 'string',
+            example: '+1 (555) 001-0203'
+          },
+          avatar: {
+            type: 'string',
+            example: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bessie'
+          },
+          imageUrl: {
+            type: 'string',
+            example: 'https://firebasestorage.googleapis.com/v0/b/...'
+          },
+          bio: {
+            type: 'string',
+            example: 'Passionate web designer...'
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time'
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time'
+          }
+        }
+      },
+      Capital: {
+        type: 'object',
+        required: ['source', 'amount'],
+        properties: {
+          _id: {
+            type: 'string',
+            example: '60d21b4667d0d8992e610c85'
+          },
+          source: {
+            type: 'string',
+            example: 'VC Fund A'
+          },
+          amount: {
+            type: 'number',
+            example: 500000
+          },
+          status: {
+            type: 'string',
+            example: 'negotiating'
+          },
+          geography: {
+            type: 'string',
+            example: 'North America'
+          },
+          thesis: {
+            type: 'string',
+            example: 'Early stage SaaS'
+          },
+          notes: {
+            type: 'string',
+            example: 'Met at conference'
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time'
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time'
+          }
+        }
       }
     }
   },
@@ -136,6 +224,14 @@ const swaggerDefinition = {
     {
       name: "Admin",
       description: "Endpoints for admin registration, login, and management",
+    },
+    {
+      name: "Contacts",
+      description: "Endpoints for managing user connections/contacts",
+    },
+    {
+      name: "Capital",
+      description: "Endpoints for managing capital details and statuses",
     },
   ],
 };
